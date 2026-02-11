@@ -3,5 +3,9 @@
 # dependencies
 node_modules
 
+# lockfiles (use bun install locally)
+package-lock.json
+bun.lockb
+
 # Raycast
 .raycast
