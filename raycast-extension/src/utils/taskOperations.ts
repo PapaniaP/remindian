@@ -4,7 +4,7 @@
  * but internally uses multi-file scanning and surgical edits.
  */
 
-import { showToast, Toast, getPreferenceValues } from "@raycast/api";
+import { showToast, Toast } from "@raycast/api";
 import { Task, Priority, ScanOptions, MetadataChanges } from "../types";
 import { scanVault } from "./vaultScanner";
 import {
@@ -17,44 +17,36 @@ import {
 import { priorityToValue } from "./priority";
 import { priorityToEmoji } from "./priority";
 import { refreshMenubar } from "./menubarRefresh";
+import { getSettings } from "./settings";
 import { ICONS } from "../constants";
 import path from "path";
 
-function getScanOptions(): { vaultPath: string; options: ScanOptions } {
-  const preferences = getPreferenceValues<Preferences>();
-  const vaultPath = preferences.vaultPath;
+async function getScanOptions(): Promise<{ vaultPath: string; options: ScanOptions }> {
+  const settings = await getSettings();
 
-  if (!vaultPath) {
+  if (!settings.vaultPath) {
     throw new Error("Vault path is not set");
   }
 
-  const excludedFolders = (preferences.excludedFolders || ".obsidian,.git,.trash")
-    .split(",")
-    .map((f: string) => f.trim())
-    .filter(Boolean);
-
-  const includedFolders = (preferences.includedFolders || "")
-    .split(",")
-    .map((f: string) => f.trim())
-    .filter(Boolean);
-
-  const includeCompleted = preferences.showCompletedTasks || false;
-
   return {
-    vaultPath,
-    options: { excludedFolders, includedFolders, includeCompleted },
+    vaultPath: settings.vaultPath,
+    options: {
+      excludedFolders: settings.excludedFolders,
+      includedFolders: settings.includedFolders,
+      includeCompleted: settings.showCompletedTasks,
+    },
   };
 }
 
 export async function getAllTasks(): Promise<Task[]> {
-  const { vaultPath, options } = getScanOptions();
+  const { vaultPath, options } = await getScanOptions();
   const optionsWithCompleted = { ...options, includeCompleted: true };
   const taskFiles = await scanVault(vaultPath, optionsWithCompleted);
   return taskFiles.flatMap((tf) => tf.tasks);
 }
 
 export async function getAllUncompletedTasks(): Promise<Task[]> {
-  const { vaultPath, options } = getScanOptions();
+  const { vaultPath, options } = await getScanOptions();
   const optionsUncompleted = { ...options, includeCompleted: false };
   const taskFiles = await scanVault(vaultPath, optionsUncompleted);
   return taskFiles.flatMap((tf) => tf.tasks);
@@ -154,17 +146,18 @@ export interface NewTaskInput {
 
 export async function addTask(input: NewTaskInput): Promise<void> {
   try {
-    const preferences = getPreferenceValues<Preferences>();
-    const vaultPath = preferences.vaultPath;
+    const settings = await getSettings();
+    const vaultPath = settings.vaultPath;
 
     let targetPath: string;
     if (input.targetFilePath) {
       targetPath = path.isAbsolute(input.targetFilePath)
         ? input.targetFilePath
         : path.join(vaultPath, input.targetFilePath);
+    } else if (settings.inboxFilePath) {
+      targetPath = path.join(vaultPath, settings.inboxFilePath);
     } else {
-      const inboxFile = preferences.inboxFilePath || "Inbox.md";
-      targetPath = path.join(vaultPath, inboxFile);
+      throw new Error("No inbox file configured. Please set one in the setup wizard.");
     }
 
     const taskLine = formatNewTaskLine(input);

@@ -60,7 +60,7 @@
     {
       "name": "excludedFolders",
       "title": "Excluded Folders",
-      "description": "Comma-separated folder names to skip (e.g., .obsidian,.git,.trash,Archive)",
+      "description": "Comma-separated folder names to skip (e.g., .obsidian,.git,.trash,Archive). Overridden by the setup wizard.",
       "type": "textfield",
       "required": false,
       "default": ".obsidian,.git,.trash"
@@ -68,7 +68,7 @@
     {
       "name": "includedFolders",
       "title": "Included Folders (Whitelist)",
-      "description": "If set, ONLY scan these folders. Leave empty to scan entire vault.",
+      "description": "If set, ONLY scan these folders. Leave empty to scan entire vault. Overridden by the setup wizard.",
       "type": "textfield",
       "required": false,
       "default": ""
@@ -76,10 +76,10 @@
     {
       "name": "inboxFilePath",
       "title": "Inbox File",
-      "description": "Relative path within vault for new tasks (e.g., Inbox.md)",
+      "description": "Relative path within vault for new tasks (e.g., Inbox.md). Leave empty to disable Add Task. Overridden by the setup wizard.",
       "type": "textfield",
       "required": false,
-      "default": "Inbox.md"
+      "default": ""
     },
     {
       "name": "showCompletedTasks",

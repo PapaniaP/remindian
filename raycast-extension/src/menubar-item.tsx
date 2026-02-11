@@ -7,16 +7,23 @@ import {
   LaunchType,
   openExtensionPreferences,
 } from "@raycast/api";
+import { useState, useEffect } from "react";
 import { getCleanTitle } from "./utils/taskParser";
 import { PRIORITY_VALUES, Task } from "./types";
 import { useTasks } from "./hooks/useTasks";
 import { priorityToIcon } from "./utils/priority";
+import { getInboxFilePath } from "./utils/settings";
 import path from "path";
 
 const Command = () => {
   const preferences = getPreferenceValues<Preferences>();
   const maxLength =
     parseInt(preferences.maxMenubarDescriptionLength) || 30;
+  const [inboxConfigured, setInboxConfigured] = useState(false);
+
+  useEffect(() => {
+    getInboxFilePath().then((p) => setInboxConfigured(!!p));
+  }, []);
 
   const {
     allTasks,
@@ -76,11 +83,13 @@ const Command = () => {
 
   const BottomSection = (
     <>
-      <MenuBarExtra.Item
-        title="Create Task"
-        icon={Icon.Plus}
-        onAction={() => handleLaunchCommand("add-task")}
-      />
+      {inboxConfigured && (
+        <MenuBarExtra.Item
+          title="Create Task"
+          icon={Icon.Plus}
+          onAction={() => handleLaunchCommand("add-task")}
+        />
+      )}
       <MenuBarExtra.Item
         title="Open Extension Preferences"
         icon={Icon.Gear}

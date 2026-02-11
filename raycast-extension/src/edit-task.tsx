@@ -5,10 +5,13 @@ import { EditTaskForm } from "./components/EditTaskForm";
 import { useTasks } from "./hooks/useTasks";
 import { priorityToIcon } from "./utils/priority";
 import { getCleanTitle } from "./utils/taskParser";
+import { useSetup } from "./hooks/useSetup";
+import { SetupWizard } from "./components/SetupWizard";
 
 export default function Command(
   props: LaunchProps<{ arguments: { taskId: string } }>,
 ) {
+  const { isSetupComplete, completeSetup } = useSetup();
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [searchText, setSearchText] = useState("");
   const { push } = useNavigation();
@@ -46,6 +49,9 @@ export default function Command(
   const handleSelectTask = (task: Task) => {
     push(<EditTaskForm task={task} onTaskUpdated={refreshTaskList} />);
   };
+
+  if (isSetupComplete === null) return <List isLoading />;
+  if (!isSetupComplete) return <SetupWizard onComplete={completeSetup} />;
 
   return (
     <List

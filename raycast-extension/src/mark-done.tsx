@@ -3,8 +3,11 @@ import { useEffect, useState } from "react";
 import { Task } from "./types";
 import { useTasks } from "./hooks/useTasks";
 import { TaskItem } from "./components/TaskItem";
+import { useSetup } from "./hooks/useSetup";
+import { SetupWizard } from "./components/SetupWizard";
 
 export default function Command() {
+  const { isSetupComplete, completeSetup } = useSetup();
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [searchText, setSearchText] = useState("");
   const preferences = getPreferenceValues<Preferences>();
@@ -26,6 +29,9 @@ export default function Command() {
       setFilteredTasks(allTasks);
     }
   }, [searchText, allTasks]);
+
+  if (isSetupComplete === null) return <List isLoading />;
+  if (!isSetupComplete) return <SetupWizard onComplete={completeSetup} />;
 
   return (
     <List

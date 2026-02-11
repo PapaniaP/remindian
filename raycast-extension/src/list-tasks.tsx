@@ -4,8 +4,11 @@ import { Task } from "./types";
 import { EditTaskForm } from "./components/EditTaskForm";
 import { TaskItem } from "./components/TaskItem";
 import { useTasks } from "./hooks/useTasks";
+import { useSetup } from "./hooks/useSetup";
+import { SetupWizard } from "./components/SetupWizard";
 
 export default function Command() {
+  const { isSetupComplete, completeSetup } = useSetup();
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [searchText, setSearchText] = useState("");
   const [fileFilter, setFileFilter] = useState("all");
@@ -52,6 +55,9 @@ export default function Command() {
   const handleEditTask = (task: Task) => {
     push(<EditTaskForm task={task} onTaskUpdated={refreshTaskList} />);
   };
+
+  if (isSetupComplete === null) return <List isLoading />;
+  if (!isSetupComplete) return <SetupWizard onComplete={completeSetup} />;
 
   return (
     <List

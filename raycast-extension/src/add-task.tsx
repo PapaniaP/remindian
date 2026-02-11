@@ -6,14 +6,55 @@ import {
   showToast,
   Toast,
   getPreferenceValues,
+  Detail,
+  Icon,
 } from "@raycast/api";
 import { Priority } from "./types";
 import { addTask } from "./utils/taskOperations";
+import { getInboxFilePath } from "./utils/settings";
 import { ICONS } from "./constants";
+import { useSetup } from "./hooks/useSetup";
+import { SetupWizard } from "./components/SetupWizard";
 import fs from "fs-extra";
-import path from "path";
 
 export default function Command() {
+  const { isSetupComplete, completeSetup, resetSetup } = useSetup();
+  const [inboxFilePath, setInboxFilePath] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isSetupComplete) {
+      getInboxFilePath().then(setInboxFilePath);
+    }
+  }, [isSetupComplete]);
+
+  if (isSetupComplete === null) return <Detail isLoading />;
+  if (!isSetupComplete) return <SetupWizard onComplete={completeSetup} />;
+  if (inboxFilePath === null) return <Detail isLoading />;
+
+  if (!inboxFilePath) {
+    return (
+      <Detail
+        markdown={
+          "# Add Task Disabled\n\n" +
+          "No inbox file is configured. To enable this command, re-run the setup wizard and select an inbox file."
+        }
+        actions={
+          <ActionPanel>
+            <Action
+              title="Re-run Setup"
+              icon={Icon.Gear}
+              onAction={resetSetup}
+            />
+          </ActionPanel>
+        }
+      />
+    );
+  }
+
+  return <AddTaskForm inboxFilePath={inboxFilePath} />;
+}
+
+function AddTaskForm({ inboxFilePath }: { inboxFilePath: string }) {
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState<Date | null>(null);
   const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
@@ -21,21 +62,17 @@ export default function Command() {
   const [priority, setPriority] = useState<Priority | "">("");
   const [tags, setTags] = useState("");
   const [recurrence, setRecurrence] = useState("");
-  const [targetFile, setTargetFile] = useState("");
+  const [targetFile, setTargetFile] = useState(inboxFilePath);
   const [availableFiles, setAvailableFiles] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const preferences = getPreferenceValues<Preferences>();
 
   useEffect(() => {
-    // Load available .md files from vault for the target file picker
     const loadFiles = async () => {
       try {
         const vaultPath = preferences.vaultPath;
-        const inboxFile = preferences.inboxFilePath || "Inbox.md";
-        setTargetFile(inboxFile);
 
-        // Collect top-level .md files and common task locations
         const entries = await fs.readdir(vaultPath, { withFileTypes: true });
         const mdFiles: string[] = [];
         for (const entry of entries) {
@@ -44,8 +81,8 @@ export default function Command() {
           }
         }
         // Ensure inbox file is in the list
-        if (!mdFiles.includes(inboxFile)) {
-          mdFiles.unshift(inboxFile);
+        if (!mdFiles.includes(inboxFilePath)) {
+          mdFiles.unshift(inboxFilePath);
         }
         setAvailableFiles(mdFiles);
       } catch (error) {
