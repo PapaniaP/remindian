@@ -23,6 +23,25 @@ function getVaultName(): string {
   return path.basename(preferences.vaultPath);
 }
 
+function buildDetailMarkdown(task: Task, relPath: string): string {
+  const lines: string[] = [];
+
+  lines.push(`## ${task.cleanTitle}`);
+  lines.push("");
+
+  lines.push(`📄 \`${relPath}:${task.source.lineNumber}\``);
+  lines.push("");
+
+  lines.push("---");
+  lines.push("");
+  lines.push("**Raw:**");
+  lines.push("```markdown");
+  lines.push(task.source.originalLine);
+  lines.push("```");
+
+  return lines.join("\n");
+}
+
 export function TaskItem({
   task,
   onMarkDone,
@@ -43,6 +62,7 @@ export function TaskItem({
       icon={task.completed ? Icon.Checkmark : priorityMeta.icon}
       detail={
         <List.Item.Detail
+          markdown={buildDetailMarkdown(task, relPath)}
           metadata={
             <List.Item.Detail.Metadata>
               <List.Item.Detail.Metadata.Label
