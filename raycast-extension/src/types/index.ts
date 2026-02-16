@@ -30,10 +30,12 @@ export interface Task {
   description: string; // Raw description including emojis, dates, tags
   cleanTitle: string; // Display title stripped of metadata
   completed: boolean;
+  status: string; // Raw checkbox character: " ", "x", "/", "-", ">", "?", "!", etc.
   dueDate?: Date;
   scheduledDate?: Date;
   startDate?: Date;
   completedAt?: Date;
+  createdDate?: Date;
   priority?: Priority;
   tags?: string[]; // Full tags: ["#work/clients/somfy", "#urgent"]
   targetList?: string; // First tag's top-level: "work"

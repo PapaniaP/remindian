@@ -12,7 +12,6 @@ export interface AppSettings {
   includedFolders: string[];
   inboxFilePath: string;
   showCompletedTasks: boolean;
-  sortByPriority: boolean;
   showOnlyCurrent: boolean;
 }
 
@@ -46,7 +45,6 @@ export async function getSettings(): Promise<AppSettings> {
       .filter(Boolean),
     inboxFilePath,
     showCompletedTasks: preferences.showCompletedTasks || false,
-    sortByPriority: preferences.sortByPriority !== false,
     showOnlyCurrent: preferences.showOnlyCurrent || false,
   };
 }

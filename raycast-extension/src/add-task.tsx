@@ -11,11 +11,12 @@ import {
 } from "@raycast/api";
 import { Priority } from "./types";
 import { addTask } from "./utils/taskOperations";
-import { getInboxFilePath } from "./utils/settings";
+import { getInboxFilePath, getSettings } from "./utils/settings";
 import { ICONS } from "./constants";
 import { useSetup } from "./hooks/useSetup";
 import { SetupWizard } from "./components/SetupWizard";
-import fs from "fs-extra";
+import { findMarkdownFiles } from "./utils/vaultScanner";
+import path from "path";
 
 export default function Command() {
   const { isSetupComplete, completeSetup, resetSetup } = useSetup();
@@ -71,15 +72,19 @@ function AddTaskForm({ inboxFilePath }: { inboxFilePath: string }) {
   useEffect(() => {
     const loadFiles = async () => {
       try {
-        const vaultPath = preferences.vaultPath;
+        const settings = await getSettings();
+        const vaultPath = settings.vaultPath;
+        const scanOptions = {
+          excludedFolders: settings.excludedFolders,
+          includedFolders: settings.includedFolders,
+          includeCompleted: false,
+        };
 
-        const entries = await fs.readdir(vaultPath, { withFileTypes: true });
-        const mdFiles: string[] = [];
-        for (const entry of entries) {
-          if (entry.isFile() && entry.name.endsWith(".md")) {
-            mdFiles.push(entry.name);
-          }
-        }
+        const absolutePaths = await findMarkdownFiles(vaultPath, vaultPath, scanOptions);
+        const mdFiles = absolutePaths
+          .map((p) => path.relative(vaultPath, p))
+          .sort();
+
         // Ensure inbox file is in the list
         if (!mdFiles.includes(inboxFilePath)) {
           mdFiles.unshift(inboxFilePath);
@@ -167,7 +172,7 @@ function AddTaskForm({ inboxFilePath }: { inboxFilePath: string }) {
           <Form.Dropdown.Item
             key={f}
             value={f}
-            title={f.replace(".md", "")}
+            title={f.replace(/\.md$/, "")}
           />
         ))}
       </Form.Dropdown>

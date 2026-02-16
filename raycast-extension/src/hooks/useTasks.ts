@@ -8,8 +8,7 @@ import {
   getAllUncompletedTasks,
   getAllTasks,
 } from "../utils/taskOperations";
-import { Priority, Task, MetadataChanges } from "../types";
-import { priorityToValue } from "../utils/priority";
+import { Task, MetadataChanges } from "../types";
 
 export const useTasks = (preferences: Preferences) => {
   const [allTasks, setAllTasks] = useState<Task[]>([]);
@@ -41,15 +40,6 @@ export const useTasks = (preferences: Preferences) => {
             (dueDate && dueDate < tomorrow) ||
             (scheduledDate && scheduledDate < tomorrow)
           );
-        });
-      }
-
-      if (preferences.sortByPriority) {
-        tasks.sort((a, b) => {
-          const priorityA = a.priority || Priority.LOWEST;
-          const priorityB = b.priority || Priority.LOWEST;
-          if (!b.priority) return -1;
-          return priorityToValue(priorityA) - priorityToValue(priorityB);
         });
       }
 

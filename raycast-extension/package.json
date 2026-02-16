@@ -23,10 +23,25 @@
       "mode": "view"
     },
     {
+      "name": "quick-add",
+      "title": "Quick Add Task",
+      "description": "Instantly add a task using Obsidian Tasks syntax",
+      "mode": "no-view",
+      "arguments": [
+        {
+          "name": "description",
+          "type": "text",
+          "placeholder": "Buy milk #personal 📅 2026-02-20",
+          "required": true
+        }
+      ]
+    },
+    {
       "name": "edit-task",
       "title": "Edit Task",
       "description": "Edit an existing Obsidian task",
       "mode": "view",
+      "disabledByDefault": true,
       "arguments": [
         {
           "name": "taskId",
@@ -40,13 +55,20 @@
       "name": "mark-done",
       "title": "Mark Task Done",
       "description": "Mark an Obsidian task as done",
-      "mode": "view"
+      "mode": "view",
+      "disabledByDefault": true
     },
     {
       "name": "menubar-item",
       "title": "Toggle Menubar",
       "description": "Show the first task in the menubar",
       "mode": "menu-bar"
+    },
+    {
+      "name": "daily-review",
+      "title": "Daily Review",
+      "description": "Review overdue, due, and scheduled tasks for today",
+      "mode": "view"
     }
   ],
   "preferences": [
@@ -91,13 +113,18 @@
       "label": "Show completed tasks"
     },
     {
-      "name": "sortByPriority",
-      "title": "Sort by Priority",
-      "description": "Sort tasks by priority",
-      "type": "checkbox",
-      "default": true,
+      "name": "defaultGrouping",
+      "title": "Default Grouping",
+      "description": "How tasks are grouped by default in list view",
+      "type": "dropdown",
       "required": false,
-      "label": "Sort by priority"
+      "default": "file",
+      "data": [
+        { "title": "File", "value": "file" },
+        { "title": "Tag", "value": "tag" },
+        { "title": "Priority", "value": "priority" },
+        { "title": "None", "value": "none" }
+      ]
     },
     {
       "name": "showOnlyCurrent",
@@ -142,7 +169,7 @@
       "type": "textfield",
       "default": "30",
       "placeholder": "30",
-      "required": true
+      "required": false
     },
     {
       "name": "refreshIntervalInMinutes",
@@ -151,12 +178,11 @@
       "type": "textfield",
       "default": "1",
       "placeholder": "1",
-      "required": true
+      "required": false
     }
   ],
   "dependencies": {
     "@raycast/api": "^1.94.3",
-    "date-fns": "^2.30.0",
     "fs-extra": "^11.1.0",
     "gray-matter": "^4.0.3"
   },

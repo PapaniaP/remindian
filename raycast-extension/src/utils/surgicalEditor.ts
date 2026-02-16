@@ -233,3 +233,35 @@ export async function deleteTaskLine(task: Task): Promise<void> {
   lines.splice(task.source.lineNumber, 1);
   await writeLines(task.source.filePath, lines);
 }
+
+/**
+ * Surgically change a task's checkbox status character.
+ * e.g., "- [ ]" → "- [/]" or "- [x]" → "- [>]"
+ */
+export async function changeTaskStatus(
+  task: Task,
+  newStatus: string,
+): Promise<void> {
+  const { lines } = await readAndVerify(task);
+  let line = lines[task.source.lineNumber];
+
+  // Replace the checkbox character: - [.] → - [newStatus]
+  line = line.replace(/^(\s*[-*+] \[).\]/, `$1${newStatus}]`);
+
+  // If marking as done (x), append completion date if not present
+  if (newStatus.toLowerCase() === "x") {
+    const completionPattern = /✅\uFE0F?\s*\d{4}-\d{2}-\d{2}/;
+    if (!completionPattern.test(line)) {
+      const trimmedLine = line.replace(/\s+$/, "");
+      line = `${trimmedLine} ${ICONS.DATE.COMPLETION} ${formatDate(new Date())}`;
+    }
+  }
+
+  // If un-marking from done, remove completion date
+  if (task.status.toLowerCase() === "x" && newStatus.toLowerCase() !== "x") {
+    line = line.replace(/\s*✅\uFE0F?\s*\d{4}-\d{2}-\d{2}/, "");
+  }
+
+  lines[task.source.lineNumber] = line;
+  await writeLines(task.source.filePath, lines);
+}

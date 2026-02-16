@@ -13,6 +13,7 @@ import {
   updateTaskMetadata as surgicalUpdateMetadata,
   appendNewTask,
   deleteTaskLine,
+  changeTaskStatus as surgicalChangeStatus,
 } from "./surgicalEditor";
 import { priorityToValue } from "./priority";
 import { priorityToEmoji } from "./priority";
@@ -230,6 +231,21 @@ export async function deleteTask(task: Task): Promise<void> {
     await showToast({
       style: Toast.Style.Failure,
       title: "Failed to delete task",
+      message: String(error),
+    });
+    throw error;
+  }
+}
+
+export async function changeStatus(task: Task, newStatus: string): Promise<void> {
+  try {
+    await surgicalChangeStatus(task, newStatus);
+    await showToast({ style: Toast.Style.Success, title: `Status: ${newStatus}` });
+    await refreshMenubar();
+  } catch (error) {
+    await showToast({
+      style: Toast.Style.Failure,
+      title: "Failed to change status",
       message: String(error),
     });
     throw error;

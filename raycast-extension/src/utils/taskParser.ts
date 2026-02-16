@@ -14,6 +14,7 @@ import {
   PRIORITY_PATTERNS,
   TAG_PATTERN,
   TASK_REGEX,
+  STATUS_MAP,
   RECURRENCE_EMOJI_PATTERN,
   RECURRENCE_PLAIN_PATTERN,
 } from "../constants";
@@ -140,7 +141,9 @@ export function parseTaskFromLine(
   if (!match) return null;
 
   const indentation = match[1];
-  const completed = match[2].toLowerCase() === "x";
+  const statusChar = match[2];
+  const statusInfo = STATUS_MAP[statusChar] ?? STATUS_MAP[statusChar.toLowerCase()] ?? { label: statusChar, completed: false };
+  const completed = statusInfo.completed;
   let content = match[3];
 
   // Extract dates — order matters, each extraction removes the match from content
@@ -155,6 +158,9 @@ export function parseTaskFromLine(
 
   const completedResult = extractDate(content, DATE_PATTERNS.COMPLETED);
   content = completedResult.remaining;
+
+  const createdResult = extractDate(content, DATE_PATTERNS.CREATED);
+  content = createdResult.remaining;
 
   // Extract priority
   const priorityResult = extractPriority(content);
@@ -184,10 +190,12 @@ export function parseTaskFromLine(
     description: match[3], // Raw description preserving everything
     cleanTitle,
     completed,
+    status: statusChar,
     dueDate: dueResult.date,
     startDate: startResult.date,
     scheduledDate: scheduledResult.date,
     completedAt: completed ? completedResult.date || undefined : undefined,
+    createdDate: createdResult.date,
     priority: priorityResult.priority,
     tags: tags.length > 0 ? tags : undefined,
     targetList,

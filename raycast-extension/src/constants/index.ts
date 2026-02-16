@@ -12,6 +12,7 @@ export const ICONS = {
     SCHEDULED: "⏳",
     START: "🛫",
     COMPLETION: "✅",
+    CREATED: "➕",
   },
   RECURRING: "🔁",
   RECURRING_ALT: "🔂",
@@ -24,6 +25,7 @@ export const DATE_PATTERNS = {
   START: /🛫\uFE0F?\s*(\d{4}-\d{2}-\d{2})/,
   SCHEDULED: /⏳\uFE0F?\s*(\d{4}-\d{2}-\d{2})/,
   COMPLETED: /✅\uFE0F?\s*(\d{4}-\d{2}-\d{2})/,
+  CREATED: /➕\uFE0F?\s*(\d{4}-\d{2}-\d{2})/,
 };
 
 export const PRIORITY_PATTERNS = {
@@ -39,7 +41,21 @@ export const PRIORITY_PATTERNS = {
 export const TAG_PATTERN = /#[\w-]+(?:\/[\w-]+)*/g;
 
 // Task checkbox pattern — captures indentation, completion state, and content
-export const TASK_REGEX = /^(\s*)[-*+] \[([ xX])\] (.*)/;
+// Matches any single character inside the checkbox brackets
+// Supports standard (space, x) and alternative statuses (/, -, >, ?, !, etc.)
+export const TASK_REGEX = /^(\s*)[-*+] \[(.)\] (.*)/;
+
+// Maps checkbox characters to display labels
+export const STATUS_MAP: Record<string, { label: string; completed: boolean }> = {
+  " ": { label: "Pending", completed: false },
+  "x": { label: "Completed", completed: true },
+  "X": { label: "Completed", completed: true },
+  "/": { label: "In Progress", completed: false },
+  "-": { label: "Cancelled", completed: false },
+  ">": { label: "Deferred", completed: false },
+  "?": { label: "Question", completed: false },
+  "!": { label: "Important", completed: false },
+};
 
 // Recurrence patterns — from Remindian
 // Emoji-based: 🔁 every week, 🔂 every day when done

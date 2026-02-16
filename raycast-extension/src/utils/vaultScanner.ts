@@ -61,7 +61,7 @@ function shouldExcludeFolder(
  * Whitelist mode: if includedFolders is non-empty, scan ONLY those folders + root .md files.
  * Blacklist mode: otherwise, scan all, excluding specified folders.
  */
-async function findMarkdownFiles(
+export async function findMarkdownFiles(
   dirPath: string,
   vaultPath: string,
   options: ScanOptions,

@@ -18,8 +18,8 @@ type ExtensionPreferences = {
   "inboxFilePath": string,
   /** Show Completed Tasks - Include completed tasks in the list view */
   "showCompletedTasks": boolean,
-  /** Sort by Priority - Sort tasks by priority */
-  "sortByPriority": boolean,
+  /** Default Grouping - How tasks are grouped by default in list view */
+  "defaultGrouping": "file" | "tag" | "priority" | "none",
   /** Show Only Current Tasks - Show only tasks with a due or scheduled date that is today or earlier */
   "showOnlyCurrent": boolean,
   /** Show Due Date in Menubar - Display the due date of tasks in the menubar */
@@ -42,12 +42,16 @@ declare namespace Preferences {
   export type ListTasks = ExtensionPreferences & {}
   /** Preferences accessible in the `add-task` command */
   export type AddTask = ExtensionPreferences & {}
+  /** Preferences accessible in the `quick-add` command */
+  export type QuickAdd = ExtensionPreferences & {}
   /** Preferences accessible in the `edit-task` command */
   export type EditTask = ExtensionPreferences & {}
   /** Preferences accessible in the `mark-done` command */
   export type MarkDone = ExtensionPreferences & {}
   /** Preferences accessible in the `menubar-item` command */
   export type MenubarItem = ExtensionPreferences & {}
+  /** Preferences accessible in the `daily-review` command */
+  export type DailyReview = ExtensionPreferences & {}
 }
 
 declare namespace Arguments {
@@ -55,6 +59,11 @@ declare namespace Arguments {
   export type ListTasks = {}
   /** Arguments passed to the `add-task` command */
   export type AddTask = {}
+  /** Arguments passed to the `quick-add` command */
+  export type QuickAdd = {
+  /** Buy milk #personal 📅 2026-02-20 */
+  "description": string
+}
   /** Arguments passed to the `edit-task` command */
   export type EditTask = {
   /** Task ID */
@@ -64,5 +73,7 @@ declare namespace Arguments {
   export type MarkDone = {}
   /** Arguments passed to the `menubar-item` command */
   export type MenubarItem = {}
+  /** Arguments passed to the `daily-review` command */
+  export type DailyReview = {}
 }
 
